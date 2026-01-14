@@ -1,0 +1,203 @@
+:root{
+    --bg:#fff;
+    --text:#111;
+    --muted:#666;
+    --line:#e9e9e9;
+}
+
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", sans-serif;
+    color:var(--text);
+    background:var(--bg);
+}
+
+.container{
+    width:min(1080px, calc(100% - 48px));
+    margin-inline:auto;
+}
+
+.site-header{
+    border-bottom:1px solid var(--line);
+    padding:28px 0;
+}
+
+.header-grid{
+    display:grid;
+    grid-template-columns: 140px 1fr 240px;
+    gap:32px;
+    align-items:start;
+}
+
+.brand{
+    font-weight:700;
+    letter-spacing:0.2px;
+    text-decoration:none;
+    color:var(--text);
+    font-size:22px;
+}
+
+.nav-columns{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:56px;
+}
+
+.nav-col{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.nav-col a{
+    display:block;
+    padding:4px 0;
+    color:var(--text);
+    text-decoration:none;
+    font-size:14px;
+    line-height:1.25;
+}
+.nav-col a:hover{ text-decoration:underline; }
+
+.search input{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:14px;
+}
+
+.posts{
+    padding:44px 0 80px;
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:36px;
+}
+
+.card{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.card img{
+    border-radius: 6px;
+    background: #f2f2f2;
+}
+
+
+.thumb{
+    width:100%;
+    aspect-ratio: 3 / 4;
+    background:#f3f3f3;
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+}
+.thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+.meta{
+    font-size:12px;
+    color:var(--muted);
+}
+.meta a{
+    color:var(--muted);
+    text-decoration:none;
+}
+.meta a:hover{ text-decoration:underline; }
+
+.card h2{
+    margin:0;
+    font-size:18px;
+    line-height:1.2;
+}
+.card h2 a{
+    color:var(--text);
+    text-decoration:none;
+}
+.card h2 a:hover{ text-decoration:underline; }
+
+.excerpt{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.45;
+}
+
+.sr-only{
+    position:absolute;
+    width:1px;height:1px;
+    padding:0;margin:-1px;
+    overflow:hidden;clip:rect(0,0,0,0);
+    white-space:nowrap;border:0;
+}
+
+.profile{ padding: 44px 0 80px; }
+
+.profile-hero h1{ margin:0 0 12px; font-size: 32px; }
+.profile-hero .lead{ margin:0; color: var(--muted); max-width: 75ch; }
+
+.profile-grid{
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.profile-main h2{ margin: 0 0 12px; font-size: 20px; }
+.profile-main p{ margin: 0 0 12px; line-height: 1.6; color: var(--text); }
+.profile-side h3{ margin: 0 0 10px; font-size: 14px; letter-spacing: .02em; text-transform: none; }
+
+.block{
+    padding: 14px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 14px;
+}
+
+.block ul{ margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.55; font-size: 13px; }
+.block li{ margin: 6px 0; }
+
+.callout{
+    margin-top: 18px;
+    padding: 14px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fafafa;
+}
+.callout p{ margin: 6px 0 0; color: var(--muted); }
+
+.two-col{
+    columns: 1;
+}
+
+@media (max-width: 900px){
+    .profile-grid{ grid-template-columns: 1fr; }
+    .two-col{ columns: 1; }
+}
+@media (min-width: 901px){
+    .two-col{ columns: 2; column-gap: 22px; }
+}
+
+
+/* responsive */
+@media (max-width: 1024px){
+    .header-grid{ grid-template-columns: 140px 1fr; }
+    .search{ grid-column: 1 / -1; }
+    .posts{ grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 760px){
+    .nav-columns{ grid-template-columns: 1fr; gap:18px; }
+    .posts{ grid-template-columns: repeat(2, 1fr); gap:22px; }
+}
+@media (max-width: 480px){
+    .container{ width:min(1080px, calc(100% - 28px)); }
+    .posts{ grid-template-columns: 1fr; }
+}

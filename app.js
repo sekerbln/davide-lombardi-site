@@ -56,7 +56,7 @@ const posts = [
         href: "./post-boundaries-2024.html"
     },
     {
-        title: "Endless Cities 2.0 (PDF)",
+        title: "Endless Cities 2.0",
         categories: ["Lecture"],
         date: "2020-09-21",
         excerpt: "Poster + speaker bio as PDF.",

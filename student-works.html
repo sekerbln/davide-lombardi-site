@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Student Works Gallery — Davide Lombardi</title>
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+        .gallery-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:24px 0}
+        .pill{display:inline-flex;gap:8px;align-items:center}
+        .pill select,.pill input{padding:8px 10px;border:1px solid #ddd;border-radius:10px}
+        .grid{display:grid;gap:18px;grid-template-columns:repeat(3,minmax(0,1fr))}
+        @media (max-width: 980px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+        @media (max-width: 640px){.grid{grid-template-columns:1fr}}
+        .tile{border:1px solid #eee;border-radius:12px;overflow:hidden;background:#fff}
+        .tile a{display:block}
+        .tile img{width:100%;height:320px;object-fit:cover;display:block;background:#f5f5f5}
+        .tile .cap{padding:10px 12px;font-size:14px;line-height:1.3;color:#222}
+        dialog.lightbox{border:none;border-radius:14px;max-width:min(1100px,92vw);padding:0;overflow:hidden}
+        dialog::backdrop{background:rgba(0,0,0,.6)}
+        .lb{background:#000}
+        .lb img{max-width:92vw;max-height:86vh;display:block;margin:auto}
+        .lbbar{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;background:#111;color:#fff}
+        .lbbar button{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:10px;padding:6px 10px;cursor:pointer}
+        .lbmeta{font-size:12px;opacity:.85}
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-grid">
+        <a class="brand" href="./index.html">Davide<br/>Lombardi</a>
+
+        <nav class="nav-columns" aria-label="Primary">
+            <ul class="nav-col">
+                <li><a href="./index.html" aria-current="page">Home</a></li>
+                <li><a href="./personal-profile.html">About Davide</a></li>
+                <li><a href="./publications.html">Publication List</a></li>
+                <li><a href="./grants.html">Research Grants</a></li>
+                <li><a href="./projects.html">Full Project List</a></li>
+                <li><a href="./awards.html">Awards &amp; Distinctions</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+            </ul>
+
+            <ul class="nav-col">
+                <li><a href="./category-news.html">News</a></li>
+                <li><a href="./research-by-design.html">Research by Design</a></li>
+                <li><a href="./selected-projects.html">Selected Projects</a></li>
+                <li><a href="./books.html">Books</a></li>
+                <li><a href="./teaching.html">Teaching</a></li>
+                <li><a href="./student-works.html" aria-current="page">Student Works</a></li>
+                <li><a href="./competition.html" aria-current="page">Competition</a></li>
+            </ul>
+        </nav>
+
+        <form class="search" role="search" aria-label="Site search" onsubmit="return false;">
+            <label class="sr-only" for="q-site">Search</label>
+            <input id="q-site" name="q" type="search" placeholder="Search" autocomplete="off" />
+        </form>
+    </div>
+</header>
+
+
+<main class="container profile">
+    <section class="profile-hero">
+        <h1>Student Works Gallery</h1>
+        <p class="lead">Generated from <code>./assets/studentworks/manifest.json</code>.</p>
+    </section>
+
+    <section class="gallery-toolbar">
+        <div class="pill">
+            <label for="folder">Folder</label>
+            <select id="folder"></select>
+        </div>
+        <div class="pill">
+            <label for="q">Filter</label>
+            <input id="q" type="search" placeholder="type to filter filenames…" />
+        </div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+</main>
+
+<dialog id="lightbox" class="lightbox">
+    <div class="lbbar">
+        <div class="lbmeta" id="lbmeta">—</div>
+        <div>
+            <button id="prev" type="button">Prev</button>
+            <button id="next" type="button">Next</button>
+            <button id="close" type="button">Close</button>
+        </div>
+    </div>
+    <div class="lb">
+        <img id="lbimg" alt="" />
+    </div>
+</dialog>
+
+<script>
+    const MANIFEST_URL = "./assets/studentworks/manifest.json";
+    const grid = document.querySelector("#grid");
+    const folderSel = document.querySelector("#folder");
+    const qInput = document.querySelector("#q");
+
+    const lb = document.querySelector("#lightbox");
+    const lbImg = document.querySelector("#lbimg");
+    const lbMeta = document.querySelector("#lbmeta");
+    const btnClose = document.querySelector("#close");
+    const btnPrev = document.querySelector("#prev");
+    const btnNext = document.querySelector("#next");
+
+    let manifest = null;
+    let currentFolder = "";
+    let filtered = [];
+    let currentIndex = 0;
+
+    function byName(a,b){ return a.name.localeCompare(b.name); }
+
+    function folderFromHash(){
+        const h = (location.hash || "").replace("#","").trim();
+        return h || "";
+    }
+
+    function setHash(folder){
+        if(!folder) return;
+        history.replaceState(null, "", `#${encodeURIComponent(folder)}`);
+    }
+
+    function applyFilter(){
+        const q = (qInput.value || "").toLowerCase().trim();
+        const list = (manifest.folders[currentFolder] || []).slice().sort(byName);
+
+        filtered = q
+            ? list.filter(it => it.name.toLowerCase().includes(q))
+            : list;
+
+        renderGrid();
+    }
+
+    function renderGrid(){
+        if(!filtered.length){
+            grid.innerHTML = `<div class="meta">No images found.</div>`;
+            return;
+        }
+        grid.innerHTML = filtered.map((it, idx) => `
+        <article class="tile">
+          <a href="${it.src}" data-idx="${idx}" aria-label="${it.name}">
+            <img src="${it.src}" alt="${it.name}" loading="lazy" />
+          </a>
+          <div class="cap">${it.name}</div>
+        </article>
+      `).join("");
+    }
+
+    function openLightbox(idx){
+        currentIndex = Math.max(0, Math.min(idx, filtered.length - 1));
+        const item = filtered[currentIndex];
+        lbImg.src = item.src;
+        lbImg.alt = item.name;
+        lbMeta.textContent = `${currentFolder} — ${item.name} (${currentIndex+1}/${filtered.length})`;
+        lb.showModal();
+    }
+
+    function step(delta){
+        if(!filtered.length) return;
+        openLightbox((currentIndex + delta + filtered.length) % filtered.length);
+    }
+
+    grid.addEventListener("click", (e) => {
+        const a = e.target.closest("a[data-idx]");
+        if(!a) return;
+        e.preventDefault();
+        openLightbox(Number(a.dataset.idx));
+    });
+
+    btnClose.addEventListener("click", () => lb.close());
+    btnPrev.addEventListener("click", () => step(-1));
+    btnNext.addEventListener("click", () => step(1));
+    window.addEventListener("keydown", (e) => {
+        if(!lb.open) return;
+        if(e.key === "Escape") lb.close();
+        if(e.key === "ArrowLeft") step(-1);
+        if(e.key === "ArrowRight") step(1);
+    });
+
+    folderSel.addEventListener("change", () => {
+        currentFolder = folderSel.value;
+        setHash(currentFolder);
+        applyFilter();
+    });
+
+    qInput.addEventListener("input", applyFilter);
+
+    async function init(){
+        const res = await fetch(MANIFEST_URL, { cache: "no-store" });
+        manifest = await res.json();
+
+        const folders = Object.keys(manifest.folders || {})
+            .filter(f => ["stud_01", "stud_02"].includes(f))
+                .sort();
+
+        folderSel.innerHTML = folders.map(f => `<option value="${f}">${f}</option>`).join("");
+
+        const hashFolder = decodeURIComponent(folderFromHash());
+        currentFolder = folders.includes(hashFolder) ? hashFolder : (folders[0] || "");
+        folderSel.value = currentFolder;
+        applyFilter();
+    }
+
+    init().catch(err => {
+        grid.innerHTML = `<div class="meta">Failed to load manifest.json. ${String(err)}</div>`;
+    });
+</script>
+</body>
+</html>

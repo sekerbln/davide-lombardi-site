@@ -1,6 +1,9 @@
 {
   "name": "dl",
   "version": "1.0.0",
-  "dependencies": {
-  }
+  "type": "module",
+  "scripts": {
+    "gen:studentworks": "node tools/generate-studentworks-manifest.js"
+  },
+  "dependencies": {}
 }
